@@ -65,7 +65,7 @@ public class StudentDAO {
     }
 
     // 학생 학번 조회 기능
-    public List<Student> getIdStudent(String studentId) {
+    public List<Student> getStudentById(String studentId) {
         List<Student> studentList = new ArrayList<>();
         String sql = """
                 SELECT * FROM students
