@@ -65,8 +65,7 @@ public class StudentDAO {
     }
 
     // 학생 학번 조회 기능
-    public List<Student> getStudentById(String studentId) {
-        List<Student> studentList = new ArrayList<>();
+    public Student getStudentById(String studentId) {
         String sql = """
                 SELECT * FROM students
                 WHERE student_id = ?
@@ -75,26 +74,22 @@ public class StudentDAO {
         try (Connection connect = DatabaseUtil.getConnection()) {
             try (PreparedStatement pstmt = connect.prepareStatement(sql)) {
                 pstmt.setString(1, studentId);
+
                 ResultSet rs = pstmt.executeQuery();
 
-                while (rs.next()) {
+                if (rs.next()) {
                     Student student = new Student();
                     student.setId(rs.getInt("id"));
                     student.setName(rs.getString("name"));
                     student.setStudentId(rs.getString("student_id"));
 
-                    studentList.add(student);
+                    return student;
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        /*
-        for (int i = 0; i < studentList.size(); i++) {
-            System.out.println(studentList.get(i));
-        }
-        */
-        return studentList;
+        return null;
     }
 
 }
