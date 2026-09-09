@@ -25,7 +25,8 @@ public class StudentDAO {
             try (PreparedStatement pstmt = connect.prepareStatement(sql)) {
                 pstmt.setString(1, student.getName());
                 pstmt.setString(2, student.getStudentId());
-                pstmt.executeUpdate();
+                rows = pstmt.executeUpdate();
+                System.out.println(rows + "행이 추가되었습니다");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
