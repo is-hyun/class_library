@@ -45,12 +45,7 @@ public class StudentDAO {
                 ResultSet rs = pstmt.executeQuery();
 
                 while (rs.next()) {
-                    Student student = new Student();
-                    student.setId(rs.getInt("id"));
-                    student.setName(rs.getString("name"));
-                    student.setStudentId(rs.getString("student_id"));
-
-                    studentList.add(student);
+                    studentList.add(createStudent(rs));
                 }
             }
         } catch (SQLException e) {
@@ -78,18 +73,21 @@ public class StudentDAO {
                 ResultSet rs = pstmt.executeQuery();
 
                 if (rs.next()) {
-                    Student student = new Student();
-                    student.setId(rs.getInt("id"));
-                    student.setName(rs.getString("name"));
-                    student.setStudentId(rs.getString("student_id"));
-
-                    return student;
+                    return createStudent(rs);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    private static Student createStudent(ResultSet rs) throws SQLException {
+        Student student = new Student();
+        student.setId(rs.getInt("id"));
+        student.setName(rs.getString("name"));
+        student.setStudentId(rs.getString("student_id"));
+        return student;
     }
 
 }
