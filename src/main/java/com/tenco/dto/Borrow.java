@@ -14,4 +14,11 @@ public class Borrow {
     private int studentId;
     private LocalDate borrowDate;
     private LocalDate returnDate;
+
+    public Borrow(int bookId, int studentId, LocalDate borrowDate, LocalDate returnDate) {
+        this.bookId = bookId;
+        this.studentId = studentId;
+        this.borrowDate = borrowDate;
+        this.returnDate = returnDate;
+    }
 }
