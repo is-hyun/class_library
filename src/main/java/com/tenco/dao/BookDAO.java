@@ -55,6 +55,9 @@ public class BookDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        if (bookList.isEmpty()) {
+            System.out.println("검색결과가 없습니다.");
+        }
         return bookList;
     }
 
