@@ -15,7 +15,15 @@ dependencies {
 
     // Source: https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     implementation group: 'com.mysql', name: 'mysql-connector-j', version: '8.4.0'
-    
+
+    // 커넥션 풀 library
+    // Source: https://mvnrepository.com/artifact/com.zaxxer/HikariCP
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.1.0'
+    // SLF4J API
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.17'
+    // [추가] SLF4J 구현체 (Simple Logger)
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.17'
+
     testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
