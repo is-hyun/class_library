@@ -12,19 +12,36 @@ import java.util.List;
 import java.util.Scanner;
 
 // 사용자의 입출력을 처리하는 View 클래스
-public class LibraryView {
+
+// [역할]
+// 키보드 입력을 받아 Service 에 넘기고, 결과를 화면에 출력한다.
+// SQL 을 직접 실행하지 않고, 업무 규칙토 판단하지 않습니다.
+//  "빈 값인가", "숫자인가" 같은 입력 형식을 검사하고 서비스단에 맞는 객체내 값을 구해서 일을 위임한다.
+public class LibraryView2 {
 
     private final LibraryService service = new LibraryService();
     private final Scanner scanner = new Scanner(System.in);
 
+    // 현재 로그인한 학생 정보가 null 아니라면 로그인된 상태로 보면 된다.
+    // 만약 null 이라면 로그인이 필요한 기능에서 로그인 요청을 먼저 유도 해야 한다.
     private Integer currentStudentId = null;
     private String currentStudentName = null;
-    // private Student currentStudent = null;
+
     private Integer currentAdminId = null;
-    private String currentAdminName = null;
+    private String  currentAdminName = null;
 
 
 
+
+
+    // 프로그램 메인 루프
+    // [처리순서]
+    // 1. 메뉴를 출력한다.
+    // 2. 번호를 입력 받는다
+    // 3. 번호에 맞는 메서드를 호출한다
+    // 4. 호출 중 SQLException 이 나면 에러 메세지를 출력하고 다시 1번으로 돌아간다.
+    // 5. 0번을 입력하면 프로그램 종료 또는 return 루프를 빠져 나간다.
+    // 프로그램 메인 루프
     public void start() {
         System.out.println("=== 도서관리 시스템 시작 ===");
 
@@ -34,7 +51,7 @@ public class LibraryView {
 
             try {
                 switch (choice) {
-                    case 1:  addBook();             break;
+                    case 1:  addBook();            break;
                     case 2:  listBooks();           break;
                     case 3:  searchBooks();         break;
                     case 4:  addStudent();          break;
@@ -46,8 +63,7 @@ public class LibraryView {
                     case 10: logout();              break;
                     case 11:
                         System.out.println("프로그램을 종료합니다.");
-                        // 커넥션 풀 종료
-                        DatabaseUtil.close();
+                        DatabaseUtil.close(); // 커넥션 풀 종료
                         scanner.close();
                         return;
                     case 12: adminLogin();          break;
@@ -82,14 +98,10 @@ public class LibraryView {
         System.out.println("9.  로그인");
         System.out.println("10. 로그아웃");
         System.out.println("11. 종료");
-        System.out.println("12. 관리자 로그인");
+        System.out.println("12.  관리자로그인");
     }
 
     private void addBook() throws SQLException {
-        if (currentAdminId == null) {
-            System.out.println("관리자 전용 기능입니다.");
-            return;
-        }
         System.out.print("제목    : ");
         String title = scanner.nextLine().trim();
         if (title.isEmpty()) { System.out.println("제목은 필수입니다."); return; }
@@ -158,10 +170,6 @@ public class LibraryView {
     }
 
     private void addStudent() throws SQLException {
-        if (currentAdminId == null) {
-            System.out.println("관리자 전용 기능입니다.");
-            return;
-        }
         System.out.print("이름: ");
         String name = scanner.nextLine().trim();
         if (name.isEmpty()) { System.out.println("이름은 필수입니다."); return; }
@@ -175,10 +183,6 @@ public class LibraryView {
     }
 
     private void listStudents() throws SQLException {
-        if (currentAdminId == null) {
-            System.out.println("관리자 전용 기능입니다.");
-            return;
-        }
         List<Student> students = service.getAllStudent();
         System.out.println("\n=== 학생 목록 ===");
         if (students.isEmpty()) {
@@ -192,12 +196,9 @@ public class LibraryView {
     }
 
     private void borrowBook() throws SQLException {
-        if (!isLogin()) {
+        if (currentStudentId == null) {
             System.out.println("먼저 로그인해주세요. (메뉴 9번)");
             return;
-        }
-        if (currentAdminId != null) {
-            currentStudentId = readInt("학생 ID를 입력하세요 : ");
         }
         int bookId = readInt("대출할 도서 ID: ");
         if (bookId <= 0) { System.out.println("유효한 도서 ID 를 입력하세요."); return; }
@@ -221,12 +222,9 @@ public class LibraryView {
     }
 
     private void returnBook() throws SQLException {
-        if (!isLogin()) {
+        if (currentStudentId == null) {
             System.out.println("먼저 로그인해주세요. (메뉴 9번)");
             return;
-        }
-        if (currentAdminId != null) {
-            currentStudentId = readInt("학생 ID를 입력하세요 : ");
         }
         int bookId = readInt("반납할 도서 ID: ");
         if (bookId <= 0) { System.out.println("유효한 도서 ID 를 입력하세요."); return; }
@@ -236,8 +234,8 @@ public class LibraryView {
     }
 
     private void login() throws SQLException {
-        if (isLogin()) {
-            System.out.println("이미 로그인 중입니다. 먼저 로그아웃해 주세요.");
+        if (currentStudentId != null) {
+            System.out.println("이미 로그인 중입니다. (" + currentStudentName + ")");
             return;
         }
         System.out.print("학번: ");
@@ -254,8 +252,9 @@ public class LibraryView {
         }
     }
 
+    // 로그아웃 (학생, 관리자 공통)
     private void logout() {
-        if (!isLogin()) {
+        if (!isLoggedIn()) {
             System.out.println("현재 로그인 상태가 아닙니다");
             return;
         }
@@ -268,7 +267,7 @@ public class LibraryView {
         System.out.println(name + " 님이 로그아웃되었습니다");
     }
 
-        // 숫자 입력을 안전하게 처리 (잘못된 입력 시 재요청)
+    // 숫자 입력을 안전하게 처리 (잘못된 입력 시 재요청)
     private int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -281,15 +280,15 @@ public class LibraryView {
     }
 
     // 관리자 로그인
-    // 1. 로그인 상태이면 중단.
-    // 2. ID와 비밀번호 입력 (비밀번호는 공백도 문자이므로 trim 하지 않음)
-    // 3. Service에 인증을 맡기고, null 실패
+    // 1. 로그인 상태이면 중단
+    // 2. ID 와 비밀번호 입력 (비밀번호는 공백도 문자이므로 trim 하지 않음)
+    // 3. Service 에 인증을 맡기고, null 실패
     private void adminLogin() throws SQLException {
-        if (isLogin()) {
-            System.out.println("이미 로그인 중입니다. 먼저 로그아웃해 주세요.");
+        if(isLoggedIn()) {
+            System.out.println("이미 로그인 중입니다. 먼저 로그아웃해주세요 (메뉴 10번)");
             return;
         }
-        System.out.print("관리자 ID : ");
+        System.out.print("아이디 : ");
         String adminId = scanner.nextLine().trim();
         System.out.print("비밀번호 : ");
         String password = scanner.nextLine();
@@ -302,13 +301,15 @@ public class LibraryView {
             currentAdminName = admin.getName();
             System.out.println(currentAdminName + " 관리자님, 환영합니다");
         }
+
     }
 
-    private boolean isLogin() {
-        return currentStudentId != null || currentAdminId != null;
+    private boolean isLoggedIn() {
+        return  currentStudentId != null || currentAdminId != null;
     }
 
     private boolean isAdminLoggedIn() {
         return currentAdminId != null;
     }
+
 }

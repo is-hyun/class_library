@@ -83,7 +83,7 @@ public class BorrowDAO {
 
             // 2.2 도서 대출 기록 - INSERT
             String insertsql = """
-                    INSERT INTO borrow (book_id, student_id, borrow_date)
+                    INSERT INTO borrows (book_id, student_id, borrow_date)
                     VALUES (?, ?, ?)
                     """;
             int rows;

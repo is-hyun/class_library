@@ -1,8 +1,10 @@
 package com.tenco.service;
 
+import com.tenco.dao.AdminDAO;
 import com.tenco.dao.BookDAO;
 import com.tenco.dao.BorrowDAO;
 import com.tenco.dao.StudentDAO;
+import com.tenco.dto.Admin;
 import com.tenco.dto.Book;
 import com.tenco.dto.Borrow;
 import com.tenco.dto.Student;
@@ -15,6 +17,7 @@ public class LibraryService {
     private final BookDAO bookDAO = new BookDAO();
     private final StudentDAO studentDAO = new StudentDAO();
     private final BorrowDAO borrowDAO = new BorrowDAO();
+    private final AdminDAO adminDAO = new AdminDAO();
 
     // 1. 도서 추가 기능
     // 제목과 저자 중 하나라도 비어있으면 중단
@@ -81,5 +84,28 @@ public class LibraryService {
         }
         return studentDAO.getStudentById(studentId);
     }
+
+
+    // 관리자 로그인(ID, 비밀번호 확인)
+    // 1. ID와 비밀번호 필수 입력 확인
+    // 2. DAO에서 해당 ID 관리자 정보 검색
+    // 3. 사용자 입력 비밀번호와 DB 저장 비밀번호 비교
+    // 4. 일치하면 비밀번호를 제외한 Admin 객체 반환, 일치하지 않으면 null 반환
+    public Admin authenticateAdmin(String adminId, String password) throws SQLException {
+        if (adminId == null || adminId.trim().isEmpty() ||
+        password == null || password.trim().isEmpty()) {
+            throw new SQLException("관리자 ID와 비밀번호를 입력해 주세요");
+        }
+        Admin admin = adminDAO.findByAdminId(adminId);
+
+        if (!password.equals(admin.getPassword())) {
+            return null;
+        }
+        // 인증이 끝난 객체에 비밀번호를 남겨 둘 이유가 없으므로 지우고 돌려줍니다.
+        admin.setPassword(null);
+        return admin;
+    }
+
+
 
 }
