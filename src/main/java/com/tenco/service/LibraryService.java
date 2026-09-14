@@ -8,6 +8,7 @@ import com.tenco.dto.Admin;
 import com.tenco.dto.Book;
 import com.tenco.dto.Borrow;
 import com.tenco.dto.Student;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -97,8 +98,13 @@ public class LibraryService {
             throw new SQLException("관리자 ID와 비밀번호를 입력해 주세요");
         }
         Admin admin = adminDAO.findByAdminId(adminId);
+        if (admin == null) {
+            return null;
+        }
 
-        if (!password.equals(admin.getPassword())) {
+        // 입력한 비밀번호를 DB의 해시값과 비교
+        // checkpw 사용
+        if (!BCrypt.checkpw(password, admin.getPassword())) {
             return null;
         }
         // 인증이 끝난 객체에 비밀번호를 남겨 둘 이유가 없으므로 지우고 돌려줍니다.
@@ -106,6 +112,28 @@ public class LibraryService {
         return admin;
     }
 
+    // 관리자 등록 - 해시 추가
+    public void registerAdmin(String adminId, String password, String name) throws SQLException {
+        if (adminId == null || adminId.trim().isEmpty() ||
+        password == null || password.trim().isEmpty() ||
+        name == null || name.trim().isEmpty()) {
+            throw new SQLException("관리자ID, 비밀번호, 이름은 필수 입력 항목입니다");
+        }
 
+        // 솔트 10
+        String hashed = BCrypt.hashpw(password, BCrypt.gensalt(10));
+        Admin admin = Admin.builder()
+                .adminId(adminId.trim())
+                .password(hashed)
+                .name(name.trim())
+                .build();
+        // 위임 처리
+        adminDAO.addAdmin(admin);
+    }
+
+    public static void main(String[] args) throws SQLException {
+        LibraryService libraryService = new LibraryService();
+        libraryService.registerAdmin("admin10", "1234", "김관리");
+    }
 
 }

@@ -40,4 +40,35 @@ public class AdminDAO {
         return null;
     }
 
+    // 관리자 등록 기능 추가
+    public void addAdmin(Admin admin) {
+        String sql = """
+                INSERT INTO admins(admin_id, password, name)
+                VALUES (?, ?, ?)
+                """;
+
+        try (Connection connect = DatabaseUtil.getConnection()) {
+            try (PreparedStatement pstmt = connect.prepareStatement(sql)) {
+                pstmt.setString(1, admin.getAdminId());
+                pstmt.setString(2, admin.getPassword());
+                pstmt.setString(3, admin.getName());
+
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // TODO - 테스트
+    public static void main(String[] args) {
+     AdminDAO adminDAO = new AdminDAO();
+     Admin admin = Admin.builder()
+             .adminId("admintest")
+             .name("관리자 테스트")
+             .password("123")
+             .build();
+     adminDAO.addAdmin(admin);
+    }
+
 }

@@ -10,12 +10,15 @@ repositories {
 }
 
 dependencies {
+
+    // bcrypt 비밀번호 해시
+    // https://mvnrepository.com/artifact/org.mindrot/jbcrypt
+    implementation 'org.mindrot:jbcrypt:0.4'
+
     // Source: https://mvnrepository.com/artifact/org.projectlombok/lombok
     implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.46'
-
     // Source: https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     implementation group: 'com.mysql', name: 'mysql-connector-j', version: '8.4.0'
-
     // 커넥션 풀 library
     // Source: https://mvnrepository.com/artifact/com.zaxxer/HikariCP
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.1.0'
